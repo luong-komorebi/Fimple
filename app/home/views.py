@@ -1,40 +1,45 @@
-from flask import render_template, request
+from flask import render_template, request, redirect
 from app import db
 from app.models import Category, Priority, Todo
 from . import home
 
 @home.route('/')
 def list_all():
-    categories = Category.query.all()
-    todos = Todo.query.join(Priority).order_by(Priority.value.desc())
-    return render_template('list.html', categories=categories, todos=todos)
+    return render_template(
+        'list.html',
+        categories=Category.query.all(),
+        todos=Todo.query.all()
+    )
 
-@home.route('/new-task', methods=['POST'])
-def new():
-    if request.method == 'POST':
-        category = Category.query.filter_by(id=request.form['category']).first()
-        priority = Priority.query.filter_by(id=request.form['priority']).first()
-        todo = Todo(category, priority, request.form['description'])
-        db.session.add(todo)
-        db.session.commit()
-        return redirect('/')
-    else:
-        categories = Category.query.all()
-        priorities = Priority.query.all()
-        return render_template(
-            'new-task.html',
-            page='new-task',
-            categories=categories,
-            priorities=priorities)
 
 @home.route('/<name>')
 def list_todos(name):
     category = Category.query.filter_by(name=name).first()
-    categories = Category.query.all()
     return render_template(
         'list.html',
-        todos=Todo.query.filter_by(category=category).all(),
-        categories=categories)
+        todos=Todo.query.filter_by(category=category).all(),# .join(Priority).order_by(Priority.value.desc()),
+        categories=Category.query.all()
+    )
+
+
+@home.route('/new-task', methods=['GET', 'POST'])
+def new():
+    if request.method == 'POST':
+        category = Category.query.filter_by(id=request.form['category']).first()
+        #priority = Priority.query.filter_by(id=request.form['priority']).first()
+        #todo = Todo(category=category, priority=priority, description=request.form['description'])
+        todo = Todo(category=category, description=request.form['description'])
+        db.session.add(todo)
+        db.session.commit()
+        return redirect(url_for('list_all'))
+    else:
+        return render_template(
+            'new-task.html',
+            page='new-task',
+            categories=Category.query.all()
+        )
+
+
 
 @home.route('/<int:todo_id>', methods=['GET', 'POST'])
 def update_todo(todo_id):
