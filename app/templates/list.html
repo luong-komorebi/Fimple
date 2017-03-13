@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+{% from 'macros.html' import icon %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            <h3 class="lead">Category</h3>
+            <div id="rounded">
+            <table id="category-table" class="table" style="table-layout: fixed">
+               {%- for category in categories %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('home.list_todos', name=category.name) }}">{{ category.name }}</a>
+                        </td>
+                        <td>
+                            <a  class="btn btn-sm btn-default" href="{{ url_for('home.edit_category', category_id=category.id) }}">{{ icon('edit') }} Edit</a>
+                        </td>
+                        <td>
+                            <form id="catdel-{{ category.name }}" action="{{ url_for('home.delete_category', category_id=category.id) }}" method="post">
+                                <a class="btn btn-sm btn-danger" onclick="$('#catdel-{{ category.name }}').submit();">{{ icon('trash') }} Delete</a>
+                            </form>
+                        </td>
+                    </tr>
+                {%- endfor %}
+            </table>
+        </div>
+        </div>
+        <div class="col-md-9">
+            {% if todos.count() > 0 %}
+            <h3 class="lead">Todos</h3>
+            <table id="todo-table" class="table">
+               <tr>
+                    <th>#</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    {#<th>Priority</th>#}
+                    <th>Creation date</th>
+                    <th>Actions</th>
+                </tr>
+                {%- for todo in todos %}
+                    <tr {% if todo.is_done %}class="success"{% endif %}>
+                        <td> {{ loop.index }} </td>
+                        <td {% if todo.is_done %}style="text-decoration:line-through"{% endif %}>{{ todo.description }}</td>
+                        <td>{{ todo.category.name }}</td>
+                        {#<td>{{ todo.priority.name }}</td>#}
+                        <td>{{ todo.creation_date }}</td>
+                        <td>
+                            <a class="btn btn-xs btn-default{% if todo.is_done %} disabled{% endif %}"  href="{{ url_for('home.update_todo', todo_id=todo.id) }}" >{{ icon('edit') }} Edit</a>
+                            <form id=delform action="{{ url_for('home.delete_todo', todo_id=todo.id) }}" method="post">
+                                {#<input class="btn btn-xs btn-danger" type="submit" name="delete_todo" value="Delete">#}
+                                <a onclick="$('#delform').submit();" class="btn btn-xs btn-danger" id="delete_todo" href="#">{{ icon('trash') }} Delete</a>
+                            </form>
+                            <form id=isdone action="{{ url_for('home.mark_done', todo_id=todo.id) }}" method="post">
+                                {#<input class="btn btn-xs btn-default" type="submit" name="mark_done" value="Done"{% if todo.is_done %} disabled{% endif %}>#}
+                                <a onclick="$('#isdone').submit()" class="btn btn-xs btn-default" id="mark_done"{% if todo.is_done %} disabled{% endif %}>{{ icon('check') }} Done</a>
+                            </form>
+                        </td>
+                    </tr>
+                {%- endfor %}
+            </table>
+            {% else %}
+            <h3 class=lead>No Todos Yet</h3>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
