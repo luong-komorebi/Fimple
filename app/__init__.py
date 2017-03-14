@@ -15,6 +15,6 @@ def create_app(config_name):
     # @app.route('/')
     # def index():
     #     return '<h1>Hello World</h1>'    
-    from .home import home as home_blueprint
+    from app.home import home as home_blueprint
     app.register_blueprint(home_blueprint)
     return app

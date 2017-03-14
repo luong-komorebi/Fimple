@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect
+from flask import render_template, request, redirect, url_for
 from app import db
 from app.models import Category, Priority, Todo
 from . import home
@@ -8,8 +8,7 @@ def list_all():
     return render_template(
         'list.html',
         categories=Category.query.all(),
-        todos=Todo.query.all()
-    )
+        todos=Todo.query.all())
 
 
 @home.route('/<name>')
@@ -18,26 +17,22 @@ def list_todos(name):
     return render_template(
         'list.html',
         todos=Todo.query.filter_by(category=category).all(),# .join(Priority).order_by(Priority.value.desc()),
-        categories=Category.query.all()
-    )
+        categories=Category.query.all())
 
 
 @home.route('/new-task', methods=['GET', 'POST'])
 def new():
     if request.method == 'POST':
         category = Category.query.filter_by(id=request.form['category']).first()
-        #priority = Priority.query.filter_by(id=request.form['priority']).first()
-        #todo = Todo(category=category, priority=priority, description=request.form['description'])
         todo = Todo(category=category, description=request.form['description'])
         db.session.add(todo)
         db.session.commit()
-        return redirect(url_for('list_all'))
+        return redirect(url_for('home.list_all'))
     else:
         return render_template(
             'new-task.html',
             page='new-task',
-            categories=Category.query.all()
-        )
+            categories=Category.query.all())
 
 
 
@@ -90,6 +85,7 @@ def edit_category(category_id):
 def delete_category(category_id):
     if request.method == 'POST':
         category = Category.query.get(category_id)
+
         if not category.todos:
             db.session.delete(category)
             db.session.commit()
