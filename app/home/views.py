@@ -1,7 +1,7 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from app import db
 from app.models import Category, Priority, Todo
-from . import home
+from app.home import home
 
 @home.route('/')
 def list_all():
@@ -85,8 +85,8 @@ def edit_category(category_id):
 def delete_category(category_id):
     if request.method == 'POST':
         category = Category.query.get(category_id)
-
-        if not category.todos:
+        todos = Todo.query.filter_by(category_id=category_id).all()
+        if not todos:
             db.session.delete(category)
             db.session.commit()
         else:
