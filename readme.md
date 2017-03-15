@@ -57,7 +57,7 @@ https://www.postgresql.org/download/
 8. Create a datbase user with a password  
 `create user $user_name_here with password $'pass_word_here';`  
 
-9 Create database instance  
+9. Create database instance  
 `create database $app_name_here owner $user_name_here encoding 'utf-8';`  
 
 10. You may wish to change the config in instace/config.py  
